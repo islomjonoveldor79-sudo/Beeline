@@ -10,7 +10,7 @@
       --bg-color: #f4f5f7;
       --card-bg: #ffffff;
       --text-color: #1c1c1e;
-      --accent-color: #ffcc00; /* Beeline sariq */
+      --accent-color: #ffcc00;
       --btn-bg: #e5e5ea;
       --border-radius: 14px;
     }
@@ -21,7 +21,7 @@
       color: var(--text-color);
       margin: 0;
       padding: 16px;
-      padding-bottom: 220px; /* Pastki hisob-kitob oynasi to'sib qo'ymasligi uchun */
+      padding-bottom: 220px;
     }
 
     h2 {
@@ -99,7 +99,6 @@
       outline: none;
     }
 
-    /* Pastki yopishqoq hisob-kitob paneli */
     .summary-panel {
       position: fixed;
       bottom: 0;
@@ -169,7 +168,7 @@
       <span id="totalSimsCount">0 dona</span>
     </div>
     <div class="summary-row total">
-      <span>Boshlang'ich bonus (100%):</span>
+      <span>Boshlang'ich bonus:</span>
       <span id="baseBonusAmount">0 so'm</span>
     </div>
 
@@ -180,7 +179,7 @@
       </div>
       <div class="rms-card">
         <div class="title">+20% RMS</div>
-        <div class="value" id="rms20Amount">0 so me</div>
+        <div class="value" id="rms20Amount">0 so'm</div>
       </div>
       <div class="rms-card">
         <div class="title">+30% RMS</div>
@@ -190,20 +189,42 @@
   </div>
 
   <script>
-    // 1. Tariflar bazasi (Har bir tarif va 1 ta SIM uchun beriladigan bonus summasi)
+    // FAKAT SIZ BERGAN TARIFLAR RO'YXATI
     const tariffs = [
-      { id: 1, name: "YANA 30", bonusPerSim: 25500 },
-      { id: 2, name: "YANA 40", bonusPerSim: 34000 },
-      { id: 3, name: "YANA 50", bonusPerSim: 42500 },
-      { id: 4, name: "STATUS SILVER", bonusPerSim: 65000 },
-      { id: 5, name: "STATUS GOLD", bonusPerSim: 90000 }
+      { id: 1, name: "УУ+ (15000)", bonusPerSim: 19750 },
+      { id: 2, name: "MULTI 1", bonusPerSim: 0 },
+      { id: 3, name: "MULTI 2", bonusPerSim: 0 },
+      { id: 4, name: "MULTI 3", bonusPerSim: 0 },
+      { id: 5, name: "YANA 20", bonusPerSim: 17000 },
+      { id: 6, name: "YANA 30", bonusPerSim: 25500 },
+      { id: 7, name: "YANA 40", bonusPerSim: 34000 },
+      { id: 8, name: "YANA 50", bonusPerSim: 42500 },
+      { id: 9, name: "YANA 65", bonusPerSim: 0 }, 
+      { id: 10, name: "YANA 80", bonusPerSim: 0 },
+      { id: 11, name: "YANA 100", bonusPerSim: 0 },
+      { id: 12, name: "PRO 40", bonusPerSim: 0 },
+      { id: 13, name: "PRO Standard 55", bonusPerSim: 0 },
+      { id: 14, name: "PRO Max 75", bonusPerSim: 0 },
+      { id: 15, name: "PRO Premium 100", bonusPerSim: 0 },
+      { id: 16, name: "PRO VIP", bonusPerSim: 0 },
+      { id: 17, name: "Yorqin", bonusPerSim: 0 },
+      { id: 18, name: "Vibe", bonusPerSim: 0 },
+      { id: 19, name: "Oila Max", bonusPerSim: 0 },
+      { id: 20, name: "Oila Ultra", bonusPerSim: 0 },
+      { id: 21, name: "Oila Mega", bonusPerSim: 0 },
+      { id: 22, name: "Oddiy", bonusPerSim: 0 },
+      { id: 23, name: "Standart", bonusPerSim: 0 },
+      { id: 24, name: "Optimal", bonusPerSim: 0 },
+      { id: 25, name: "Status Silver", bonusPerSim: 65000 },
+      { id: 26, name: "Status Gold", bonusPerSim: 90000 },
+      { id: 27, name: "Status Platinum", bonusPerSim: 0 },
+      { id: 28, name: "Hello 1", bonusPerSim: 0 },
+      { id: 29, name: "Hello 2", bonusPerSim: 0 }
     ];
 
-    // Har bir tarif sotuv sonini saqlovchi obyekt
     const salesData = {};
     tariffs.forEach(t => salesData[t.id] = 0);
 
-    // 2. Interfeysni shakllantirish
     function renderTariffs() {
       const container = document.getElementById('tariffList');
       container.innerHTML = '';
@@ -226,7 +247,6 @@
       });
     }
 
-    // 3. Hisoblagich tugmalari bosilganda
     function updateCount(tariffId, delta) {
       const current = salesData[tariffId] || 0;
       const updated = Math.max(0, current + delta);
@@ -235,7 +255,6 @@
       calculateTotals();
     }
 
-    // Direct input orqali raqam yozilganda (masalan, 100 kiritilganda)
     function setCount(tariffId, value) {
       const val = parseInt(value) || 0;
       salesData[tariffId] = Math.max(0, val);
@@ -243,7 +262,6 @@
       calculateTotals();
     }
 
-    // 4. Avtomatik qayta hisoblash formulasi
     function calculateTotals() {
       let totalSims = 0;
       let baseBonus = 0;
@@ -254,12 +272,10 @@
         baseBonus += count * tariff.bonusPerSim;
       });
 
-      // RMS Ustamalarini hisoblash
       const rms10 = baseBonus * 1.10;
       const rms20 = baseBonus * 1.20;
       const rms30 = baseBonus * 1.30;
 
-      // Ekranga chiqarish
       document.getElementById('totalSimsCount').innerText = totalSims.toLocaleString() + " dona";
       document.getElementById('baseBonusAmount').innerText = Math.round(baseBonus).toLocaleString() + " so'm";
       document.getElementById('rms10Amount').innerText = Math.round(rms10).toLocaleString() + " so'm";
@@ -267,15 +283,13 @@
       document.getElementById('rms30Amount').innerText = Math.round(rms30).toLocaleString() + " so'm";
     }
 
-    // Telegram WebApp sozlamalari
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
-    // Dastlabki ishga tushirish
     renderTariffs();
     calculateTotals();
   </script>
 </body>
-</html>      
+</html>  
