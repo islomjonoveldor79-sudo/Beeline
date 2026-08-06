@@ -1,221 +1,281 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beeline Diler Kalkulyatori</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Beeline brend ranglari */
-        .bg-beeline { background-color: #FFCC00; }
-        .text-beeline { color: #FFCC00; }
-        .border-beeline { border-color: #FFCC00; }
-        body { background-color: #f3f4f6; }
-        
-        /* Telegram Web App standartiga mos mobil ko'rinish */
-        .app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            min-height: 100vh;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beeline Diler Kalkulyatori</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg-color: #f4f5f7;
+      --card-bg: #ffffff;
+      --text-color: #1c1c1e;
+      --accent-color: #ffcc00; /* Beeline sariq */
+      --btn-bg: #e5e5ea;
+      --border-radius: 14px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 16px;
+      padding-bottom: 220px; /* Pastki hisob-kitob oynasi to'sib qo'ymasligi uchun */
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .tariff-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tariff-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .tariff-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tariff-name {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .tariff-bonus {
+      font-size: 13px;
+      color: #8e8e93;
+      margin-top: 4px;
+    }
+
+    .counter-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-counter {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background-color: var(--btn-bg);
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--text-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease;
+    }
+
+    .btn-counter:active {
+      background-color: var(--accent-color);
+    }
+
+    .count-input {
+      width: 48px;
+      height: 36px;
+      text-align: center;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    /* Pastki yopishqoq hisob-kitob paneli */
+    .summary-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--card-bg);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .summary-row.total {
+      font-size: 16px;
+      font-weight: bold;
+      border-top: 1px solid #e5e5ea;
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    .rms-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .rms-card {
+      background-color: #f9f9fb;
+      border-radius: 10px;
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #e5e5ea;
+    }
+
+    .rms-card .title {
+      font-size: 11px;
+      color: #8e8e93;
+      font-weight: 600;
+    }
+
+    .rms-card .value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #34c759;
+      margin-top: 2px;
+    }
+  </style>
 </head>
 <body>
 
-<div class="app-container flex flex-col">
-    <div class="bg-black text-white p-4 text-center rounded-b-2xl shadow-md">
-        <h1 class="text-xl font-bold text-beeline">Beeline Aqlli Kalkulyator</h1>
-        <p class="text-xs text-gray-300 mt-1">Dilerlar uchun tezkor yordamchi</p>
+  <h2>Tariflar va Sotuvlar</h2>
+
+  <div class="tariff-list" id="tariffList"></div>
+
+  <div class="summary-panel">
+    <div class="summary-row">
+      <span>Jami sotilgan SIM-kartalar:</span>
+      <span id="totalSimsCount">0 dona</span>
+    </div>
+    <div class="summary-row total">
+      <span>Boshlang'ich bonus (100%):</span>
+      <span id="baseBonusAmount">0 so'm</span>
     </div>
 
-    <div class="p-4 flex-grow">
-        
-        <div class="flex space-x-2 mb-4 bg-gray-100 p-1 rounded-lg">
-            <button onclick="switchTab('calculator')" id="tab-calc" class="flex-1 py-2 text-sm font-semibold rounded-md bg-white shadow text-black">Hisob-kitob</button>
-            <button onclick="switchTab('budget')" id="tab-budget" class="flex-1 py-2 text-sm font-semibold rounded-md text-gray-500">Byudjet qidiruvi</button>
-        </div>
-
-        <div id="calculator-section">
-            <label class="block text-sm font-bold text-gray-700 mb-2">Tarifni tanlang:</label>
-            <select id="tariff-select" class="w-full border-2 border-gray-300 rounded-lg p-3 bg-white text-lg font-semibold focus:outline-none focus:border-beeline" onchange="calculate()">
-                </select>
-
-            <div class="mt-4 flex items-center justify-between">
-                <label class="text-sm font-bold text-gray-700">Miqdori (nechta ulanmoqda?):</label>
-                <input type="number" id="quantity" value="1" min="1" class="w-20 border-2 border-gray-300 rounded-lg p-2 text-center font-bold text-lg focus:outline-none focus:border-beeline" oninput="calculate()">
-            </div>
-
-            <div class="mt-6 bg-black text-white rounded-2xl p-5 shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-16 h-16 bg-beeline rounded-bl-full opacity-20"></div>
-                
-                <h2 class="text-center text-sm text-gray-400 mb-1">Umumiy mijoz to'lashi kerak (Итого):</h2>
-                <div id="result-total" class="text-center text-4xl font-black text-beeline mb-4">0 so'm</div>
-                
-                <div class="flex justify-between border-t border-gray-700 pt-3">
-                    <div class="text-center">
-                        <p class="text-xs text-gray-400">1-oylik to'lov</p>
-                        <p id="result-month" class="font-bold text-lg">0 so'm</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-xs text-gray-400">Kopilka (Bonus)</p>
-                        <p id="result-kopilka" class="font-bold text-lg">0 so'm</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="budget-section" class="hidden">
-            <div class="bg-beeline bg-opacity-20 p-4 rounded-xl mb-4 border border-beeline">
-                <label class="block text-sm font-bold text-black mb-2">Mijozda qancha pul bor? (so'm)</label>
-                <input type="number" id="budget-input" placeholder="Masalan: 150000" class="w-full rounded-lg p-3 text-lg font-bold border-2 border-gray-300 focus:outline-none focus:border-black" oninput="findTariffs()">
-            </div>
-            
-            <h3 class="text-sm font-bold text-gray-700 mb-2">Mos keluvchi tariflar:</h3>
-            <div id="budget-results" class="space-y-3">
-                <p class="text-gray-500 text-sm italic">Mablag'ni kiriting, tizim avtomatik tarif tavsiya qiladi.</p>
-            </div>
-        </div>
-
+    <div class="rms-grid">
+      <div class="rms-card">
+        <div class="title">+10% RMS</div>
+        <div class="value" id="rms10Amount">0 so'm</div>
+      </div>
+      <div class="rms-card">
+        <div class="title">+20% RMS</div>
+        <div class="value" id="rms20Amount">0 so me</div>
+      </div>
+      <div class="rms-card">
+        <div class="title">+30% RMS</div>
+        <div class="value" id="rms30Amount">0 so'm</div>
+      </div>
     </div>
-    
-    <div class="p-4 bg-white border-t">
-        <button class="w-full bg-beeline hover:bg-yellow-500 text-black font-bold text-lg py-3 rounded-xl transition duration-200 shadow-md">
-            Sotuvni tasdiqlash
-        </button>
-    </div>
-</div>
+  </div>
 
-<script>
-    // Jadvaldan olingan tariflar bazasi (JSON arxitekturasi)
+  <script>
+    // 1. Tariflar bazasi (Har bir tarif va 1 ta SIM uchun beriladigan bonus summasi)
     const tariffs = [
-        { name: "Oddiy", first_month: 10000, kopilka: 0, total: 10000 },
-        { name: "Standart", first_month: 4500, kopilka: 9000, total: 13500 },
-        { name: "Optimal", first_month: 5500, kopilka: 11000, total: 16500 },
-        { name: "Hello 1", first_month: 6000, kopilka: 12000, total: 18000 },
-        { name: "Yorqin", first_month: 31500, kopilka: 70000, total: 101500 },
-        { name: "Vibe", first_month: 36000, kopilka: 79000, total: 115000 },
-        { name: "Hello 2", first_month: 40000, kopilka: 87000, total: 127000 },
-        { name: "Oila Max", first_month: 45000, kopilka: 105000, total: 150000 },
-        { name: "Status Silver", first_month: 49500, kopilka: 114000, total: 163500 },
-        { name: "Status Gold", first_month: 67500, kopilka: 155000, total: 222500 },
-        { name: "Oila Ultra", first_month: 75000, kopilka: 170000, total: 245000 },
-        { name: "Oila Mega", first_month: 90000, kopilka: 200000, total: 290000 },
-        { name: "Status Platinum", first_month: 90000, kopilka: 200000, total: 290000 }
+      { id: 1, name: "YANA 30", bonusPerSim: 25500 },
+      { id: 2, name: "YANA 40", bonusPerSim: 34000 },
+      { id: 3, name: "YANA 50", bonusPerSim: 42500 },
+      { id: 4, name: "STATUS SILVER", bonusPerSim: 65000 },
+      { id: 5, name: "STATUS GOLD", bonusPerSim: 90000 }
     ];
 
-    // Pul formatini chiroyli qilish (1 000 000)
-    function formatMoney(amount) {
-        return amount.toLocaleString('ru-RU');
+    // Har bir tarif sotuv sonini saqlovchi obyekt
+    const salesData = {};
+    tariffs.forEach(t => salesData[t.id] = 0);
+
+    // 2. Interfeysni shakllantirish
+    function renderTariffs() {
+      const container = document.getElementById('tariffList');
+      container.innerHTML = '';
+
+      tariffs.forEach(tariff => {
+        const card = document.createElement('div');
+        card.className = 'tariff-card';
+        card.innerHTML = `
+          <div class="tariff-info">
+            <span class="tariff-name">${tariff.name}</span>
+            <span class="tariff-bonus">1 SIM: ${tariff.bonusPerSim.toLocaleString()} so'm</span>
+          </div>
+          <div class="counter-control">
+            <button class="btn-counter" onclick="updateCount(${tariff.id}, -1)">-</button>
+            <input type="number" class="count-input" id="input-${tariff.id}" value="${salesData[tariff.id]}" min="0" onchange="setCount(${tariff.id}, this.value)">
+            <button class="btn-counter" onclick="updateCount(${tariff.id}, 1)">+</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
     }
 
-    // Sahifa yuklanganda tariflarni Select'ga qo'shish
-    window.onload = function() {
-        const select = document.getElementById('tariff-select');
-        tariffs.forEach((t, index) => {
-            let option = document.createElement('option');
-            option.value = index;
-            option.text = t.name + " (" + formatMoney(t.total) + " so'm)";
-            select.appendChild(option);
-        });
-        calculate(); // Boshlang'ich hisob-kitobni chiqarish
-    };
-
-    // Asosiy hisob-kitob funksiyasi
-    function calculate() {
-        const selectedIndex = document.getElementById('tariff-select').value;
-        const qty = parseInt(document.getElementById('quantity').value) || 1;
-        
-        const tariff = tariffs[selectedIndex];
-        
-        const totalSum = tariff.total * qty;
-        const monthSum = tariff.first_month * qty;
-        const kopilkaSum = tariff.kopilka * qty;
-
-        // Ekranga chiqarish
-        document.getElementById('result-total').innerText = formatMoney(totalSum) + " so'm";
-        document.getElementById('result-month').innerText = formatMoney(monthSum) + " so'm";
-        document.getElementById('result-kopilka').innerText = formatMoney(kopilkaSum) + " so'm";
+    // 3. Hisoblagich tugmalari bosilganda
+    function updateCount(tariffId, delta) {
+      const current = salesData[tariffId] || 0;
+      const updated = Math.max(0, current + delta);
+      salesData[tariffId] = updated;
+      document.getElementById(`input-${tariffId}`).value = updated;
+      calculateTotals();
     }
 
-    // Byudjet bo'yicha qidiruv (Teskari hisob-kitob)
-    function findTariffs() {
-        const budget = parseInt(document.getElementById('budget-input').value);
-        const resultsDiv = document.getElementById('budget-results');
-        resultsDiv.innerHTML = ''; // Tozalash
-
-        if (!budget || budget < 10000) {
-            resultsDiv.innerHTML = '<p class="text-gray-500 text-sm italic">Mablag\'ni kiriting...</p>';
-            return;
-        }
-
-        // Byudjetga mos keladigan tariflarni filtrlash (Puli yetadigan eng zo'r tariflar)
-        const suitableTariffs = tariffs.filter(t => t.total <= budget).reverse();
-
-        if (suitableTariffs.length === 0) {
-            resultsDiv.innerHTML = '<p class="text-red-500 text-sm font-bold">Bu summaga mos tarif topilmadi.</p>';
-            return;
-        }
-
-        // Topilgan tariflarni kartochka shaklida chiqarish
-        suitableTariffs.forEach(t => {
-            // Qaytimni hisoblash
-            const change = budget - t.total;
-            
-            const card = `
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-3 flex justify-between items-center shadow-sm">
-                    <div>
-                        <h4 class="font-bold text-black text-lg">${t.name}</h4>
-                        <p class="text-xs text-gray-500">1-oy: ${formatMoney(t.first_month)} | Kopilka: ${formatMoney(t.kopilka)}</p>
-                        ${change > 0 ? `<p class="text-xs text-green-600 font-bold mt-1">Qaytim: ${formatMoney(change)} so'm</p>` : ''}
-                    </div>
-                    <div class="bg-black text-beeline font-bold px-3 py-2 rounded-lg text-sm">
-                        ${formatMoney(t.total)}
-                    </div>
-                </div>
-            `;
-            resultsDiv.innerHTML += card;
-        });
+    // Direct input orqali raqam yozilganda (masalan, 100 kiritilganda)
+    function setCount(tariffId, value) {
+      const val = parseInt(value) || 0;
+      salesData[tariffId] = Math.max(0, val);
+      document.getElementById(`input-${tariffId}`).value = salesData[tariffId];
+      calculateTotals();
     }
 
-    // Tablarni o'zgartirish (Hisob-kitob <-> Byudjet)
-    function switchTab(tab) {
-        const calcSec = document.getElementById('calculator-section');
-        const budgSec = document.getElementById('budget-section');
-        const calcTabBtn = document.getElementById('tab-calc');
-        const budgTabBtn = document.getElementById('tab-budget');
+    // 4. Avtomatik qayta hisoblash formulasi
+    function calculateTotals() {
+      let totalSims = 0;
+      let baseBonus = 0;
 
-        if (tab === 'calculator') {
-            calcSec.style.display = 'block';
-            budgSec.style.display = 'none';
-            
-            calcTabBtn.classList.replace('text-gray-500', 'text-black');
-            calcTabBtn.classList.replace('bg-transparent', 'bg-white');
-            calcTabBtn.classList.add('shadow');
-            
-            budgTabBtn.classList.replace('text-black', 'text-gray-500');
-            budgTabBtn.classList.replace('bg-white', 'bg-transparent');
-            budgTabBtn.classList.remove('shadow');
-        } else {
-            calcSec.style.display = 'none';
-            budgSec.style.display = 'block';
-            
-            budgTabBtn.classList.replace('text-gray-500', 'text-black');
-            budgTabBtn.classList.replace('bg-transparent', 'bg-white');
-            budgTabBtn.classList.add('shadow');
-            
-            calcTabBtn.classList.replace('text-black', 'text-gray-500');
-            calcTabBtn.classList.replace('bg-white', 'bg-transparent');
-            calcTabBtn.classList.remove('shadow');
-        }
+      tariffs.forEach(tariff => {
+        const count = salesData[tariff.id] || 0;
+        totalSims += count;
+        baseBonus += count * tariff.bonusPerSim;
+      });
+
+      // RMS Ustamalarini hisoblash
+      const rms10 = baseBonus * 1.10;
+      const rms20 = baseBonus * 1.20;
+      const rms30 = baseBonus * 1.30;
+
+      // Ekranga chiqarish
+      document.getElementById('totalSimsCount').innerText = totalSims.toLocaleString() + " dona";
+      document.getElementById('baseBonusAmount').innerText = Math.round(baseBonus).toLocaleString() + " so'm";
+      document.getElementById('rms10Amount').innerText = Math.round(rms10).toLocaleString() + " so'm";
+      document.getElementById('rms20Amount').innerText = Math.round(rms20).toLocaleString() + " so'm";
+      document.getElementById('rms30Amount').innerText = Math.round(rms30).toLocaleString() + " so'm";
     }
-</script>
 
+    // Telegram WebApp sozlamalari
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    // Dastlabki ishga tushirish
+    renderTariffs();
+    calculateTotals();
+  </script>
 </body>
 </html>
-
-
-
-
-
