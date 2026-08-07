@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Beeline Diler Kalkulyatori</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
   <style>
     :root {
       --bg-color: #0f1015;
@@ -26,286 +24,6 @@
       --border-radius: 16px;
       --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beeline Diler Kalkulyatori</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --bg-color: #f4f5f7;
-      --card-bg: #ffffff;
-      --text-color: #1c1c1e;
-      --accent-color: #ffcc00;
-      --btn-bg: #e5e5ea;
-      --border-radius: 14px;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 16px;
-      padding-bottom: 220px;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 20px;
-    }
-
-    .tariff-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .tariff-card {
-      background-color: var(--card-bg);
-      border-radius: var(--border-radius);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .tariff-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .tariff-name {
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .tariff-bonus {
-      font-size: 13px;
-      color: #8e8e93;
-      margin-top: 4px;
-    }
-
-    .counter-control {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-counter {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: none;
-      background-color: var(--btn-bg);
-      font-size: 20px;
-      font-weight: bold;
-      color: var(--text-color);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.15s ease;
-    }
-
-    .btn-counter:active {
-      background-color: var(--accent-color);
-    }
-
-    .count-input {
-      width: 48px;
-      height: 36px;
-      text-align: center;
-      border: 1px solid #d1d1d6;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      outline: none;
-    }
-
-    .summary-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: var(--card-bg);
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-      padding: 16px;
-      z-index: 100;
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-
-    .summary-row.total {
-      font-size: 16px;
-      font-weight: bold;
-      border-top: 1px solid #e5e5ea;
-      padding-top: 8px;
-      margin-top: 8px;
-    }
-
-    .rms-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .rms-card {
-      background-color: #f9f9fb;
-      border-radius: 10px;
-      padding: 8px;
-      text-align: center;
-      border: 1px solid #e5e5ea;
-    }
-
-    .rms-card .title {
-      font-size: 11px;
-      color: #8e8e93;
-      font-weight: 600;
-    }
-
-    .rms-card .value {
-      font-size: 13px;
-      font-weight: 700;
-      color: #34c759;
-      margin-top: 2px;
-    }
-  </style>
-</head>
-<body>
-
-  <h2>Tariflar va Sotuvlar</h2>
-
-  <div class="tariff-list" id="tariffList"></div>
-
-  <div class="summary-panel">
-    <div class="summary-row">
-      <span>Jami sotilgan SIM-kartalar:</span>
-      <span id="totalSimsCount">0 dona</span>
-    </div>
-    <div class="summary-row total">
-      <span>Boshlang'ich bonus:</span>
-      <span id="baseBonusAmount">0 so'm</span>
-    </div>
-
-    <div class="rms-grid">
-      <div class="rms-card">
-        <div class="title">+10% RMS</div>
-        <div class="value" id="rms10Amount">0 so'm</div>
-      </div>
-      <div class="rms-card">
-        <div class="title">+20% RMS</div>
-        <div class="value" id="rms20Amount">0 so'm</div>
-      </div>
-      <div class="rms-card">
-        <div class="title">+30% RMS</div>
-        <div class="value" id="rms30Amount">0 so'm</div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // FAQAT SIZ BERGAN 13 TA TARIF
-    const tariffs = [
-      { id: 1, name: "Yorqin", bonusPerSim: 0 },
-      { id: 2, name: "Vibe", bonusPerSim: 0 },
-      { id: 3, name: "Oila Max", bonusPerSim: 0 },
-      { id: 4, name: "Oila Ultra", bonusPerSim: 0 },
-      { id: 5, name: "Oila Mega", bonusPerSim: 0 },
-      { id: 6, name: "Oddiy", bonusPerSim: 0 },
-      { id: 7, name: "Standart", bonusPerSim: 0 },
-      { id: 8, name: "Optimal", bonusPerSim: 0 },
-      { id: 9, name: "Status Silver", bonusPerSim: 0 },
-      { id: 10, name: "Status Gold", bonusPerSim: 0 },
-      { id: 11, name: "Status Platinum", bonusPerSim: 0 },
-      { id: 12, name: "Hello 1", bonusPerSim: 0 },
-      { id: 13, name: "Hello 2", bonusPerSim: 0 }
-    ];
-
-    const salesData = {};
-    tariffs.forEach(t => salesData[t.id] = 0);
-
-    function renderTariffs() {
-      const container = document.getElementById('tariffList');
-      container.innerHTML = '';
-
-      tariffs.forEach(tariff => {
-        const card = document.createElement('div');
-        card.className = 'tariff-card';
-        card.innerHTML = `
-          <div class="tariff-info">
-            <span class="tariff-name">${tariff.name}</span>
-            <span class="tariff-bonus">1 SIM: ${tariff.bonusPerSim.toLocaleString()} so'm</span>
-          </div>
-          <div class="counter-control">
-            <button class="btn-counter" onclick="updateCount(${tariff.id}, -1)">-</button>
-            <input type="number" class="count-input" id="input-${tariff.id}" value="${salesData[tariff.id]}" min="0" onchange="setCount(${tariff.id}, this.value)">
-            <button class="btn-counter" onclick="updateCount(${tariff.id}, 1)">+</button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function updateCount(tariffId, delta) {
-      const current = salesData[tariffId] || 0;
-      const updated = Math.max(0, current + delta);
-      salesData[tariffId] = updated;
-      document.getElementById(`input-${tariffId}`).value = updated;
-      calculateTotals();
-    }
-
-    function setCount(tariffId, value) {
-      const val = parseInt(value) || 0;
-      salesData[tariffId] = Math.max(0, val);
-      document.getElementById(`input-${tariffId}`).value = salesData[tariffId];
-      calculateTotals();
-    }
-
-    function calculateTotals() {
-      let totalSims = 0;
-      let baseBonus = 0;
-
-      tariffs.forEach(tariff => {
-        const count = salesData[tariff.id] || 0;
-        totalSims += count;
-        baseBonus += count * tariff.bonusPerSim;
-      });
-
-      const rms10 = baseBonus * 1.10;
-      const rms20 = baseBonus * 1.20;
-      const rms30 = baseBonus * 1.30;
-
-      document.getElementById('totalSimsCount').innerText = totalSims.toLocaleString() + " dona";
-      document.getElementById('baseBonusAmount').innerText = Math.round(baseBonus).toLocaleString() + " so'm";
-      document.getElementById('rms10Amount').innerText = Math.round(rms10).toLocaleString() + " so'm";
-      document.getElementById('rms20Amount').innerText = Math.round(rms20).toLocaleString() + " so'm";
-      document.getElementById('rms30Amount').innerText = Math.round(rms30).toLocaleString() + " so'm";
-    }
-
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-    }
-
-    renderTariffs();
-    calculateTotals();
-  </script>
-</body>
-</html>          
-    /* Light mode fallbacks if needed */
     body.light-mode {
       --bg-color: #f4f5f9;
       --card-bg: #ffffff;
@@ -316,462 +34,113 @@
       --btn-hover: #e0e3eb;
       --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.06);
     }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
-      margin: 0;
-      padding: 16px;
-      padding-bottom: 260px;
+      margin: 0; padding: 16px; padding-bottom: 280px;
       min-height: 100vh;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
-
-    /* Header */
-    .app-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      padding: 8px 4px;
-    }
-
-    .brand-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
+    .app-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 8px 4px; }
+    .brand-title { display: flex; align-items: center; gap: 12px; }
     .beeline-badge {
-      width: 38px;
-      height: 38px;
+      width: 38px; height: 38px;
       background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 20px;
-      color: #000;
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 20px; color: #000;
       box-shadow: 0 0 16px var(--accent-glow);
     }
-
-    .header-text h1 {
-      font-size: 20px;
-      font-weight: 800;
-      margin: 0;
-      background: linear-gradient(90deg, #ffffff 0%, #d1d1d6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .body.light-mode .header-text h1 {
-      background: linear-gradient(90deg, #1a1a1e 0%, #4a4a5a 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .header-text p {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin: 2px 0 0 0;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 8px;
-    }
-
+    .header-text h1 { font-size: 20px; font-weight: 800; margin: 0; color: var(--text-color); }
+    .header-text p { font-size: 12px; color: var(--text-secondary); margin: 2px 0 0 0; }
+    .header-actions { display: flex; gap: 8px; }
     .icon-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      color: var(--text-color);
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 16px;
-      transition: all 0.2s ease;
+      background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color);
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 16px; transition: all 0.2s ease;
     }
-
-    .icon-btn:active {
-      transform: scale(0.95);
-      background: var(--btn-hover);
-    }
-
-    /* Controls Bar */
-    .controls-bar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .search-box {
-      flex: 1;
-      position: relative;
-    }
-
+    .icon-btn:active { transform: scale(0.95); background: var(--btn-hover); }
+    .controls-bar { display: flex; gap: 10px; margin-bottom: 16px; }
+    .search-box { flex: 1; position: relative; }
     .search-box input {
-      width: 100%;
-      height: 44px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 0 14px 0 40px;
-      color: var(--text-color);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s ease;
+      width: 100%; height: 44px; background: var(--card-bg);
+      border: 1px solid var(--card-border); border-radius: 12px;
+      padding: 0 14px 0 40px; color: var(--text-color); font-size: 14px;
+      outline: none; transition: border-color 0.2s ease;
     }
-
-    .search-box input:focus {
-      border-color: var(--accent-color);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-secondary);
-      font-size: 16px;
-    }
-
+    .search-box input:focus { border-color: var(--accent-color); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 16px; }
     .btn-edit-prices {
-      height: 44px;
-      padding: 0 14px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      color: var(--accent-color);
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      transition: all 0.2s ease;
+      height: 44px; padding: 0 14px; background: var(--card-bg);
+      border: 1px solid var(--card-border); border-radius: 12px;
+      color: var(--accent-color); font-weight: 600; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      white-space: nowrap; transition: all 0.2s ease;
     }
-
-    .btn-edit-prices.active {
-      background: var(--accent-color);
-      color: #000;
-    }
-
-    /* Tariff List */
-    .tariff-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
+    .btn-edit-prices.active { background: var(--accent-color); color: #000; }
+    .tariff-list { display: flex; flex-direction: column; gap: 12px; }
     .tariff-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--border-radius);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.15s ease, border-color 0.2s ease;
+      background-color: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--border-radius); padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: var(--shadow-sm); transition: transform 0.15s ease, border-color 0.2s ease;
     }
-
-    .tariff-card.has-sales {
-      border-color: var(--accent-color);
-      background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 204, 0, 0.05) 100%);
-    }
-
-    .tariff-info {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-    }
-
-    .tariff-name-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .tariff-name {
-      font-weight: 700;
-      font-size: 16px;
-      color: var(--text-color);
-    }
-
-    .tariff-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 6px;
-      background: rgba(255, 204, 0, 0.15);
-      color: var(--accent-color);
-      text-transform: uppercase;
-    }
-
-    .tariff-bonus-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tariff-bonus {
-      font-size: 13px;
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-
-    .price-input {
-      width: 90px;
-      height: 28px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--accent-color);
-      border-radius: 6px;
-      color: var(--accent-color);
-      font-weight: 700;
-      font-size: 12px;
-      padding: 0 6px;
-      outline: none;
-    }
-
-    /* Counter Control */
-    .counter-control {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .tariff-card.has-sales { border-color: var(--accent-color); background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 204, 0, 0.05) 100%); }
+    .tariff-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .tariff-name-row { display: flex; align-items: center; gap: 8px; }
+    .tariff-name { font-weight: 700; font-size: 16px; color: var(--text-color); }
+    .tariff-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px; background: rgba(255, 204, 0, 0.15); color: var(--accent-color); text-transform: uppercase; }
+    .tariff-bonus-wrapper { display: flex; align-items: center; gap: 6px; }
+    .tariff-bonus { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .price-input { width: 90px; height: 28px; background: rgba(255,255,255,0.05); border: 1px solid var(--accent-color); border-radius: 6px; color: var(--accent-color); font-weight: 700; font-size: 12px; padding: 0 6px; outline: none; }
+    .counter-control { display: flex; align-items: center; gap: 8px; }
     .btn-counter {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      border: none;
-      background-color: var(--btn-bg);
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-color);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-      user-select: none;
+      width: 38px; height: 38px; border-radius: 10px; border: none;
+      background-color: var(--btn-bg); font-size: 20px; font-weight: 700;
+      color: var(--text-color); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s ease; user-select: none;
     }
-
-    .btn-counter:active {
-      transform: scale(0.92);
-      background-color: var(--accent-color);
-      color: #000;
-    }
-
+    .btn-counter:active { transform: scale(0.92); background-color: var(--accent-color); color: #000; }
     .count-input {
-      width: 52px;
-      height: 38px;
-      text-align: center;
-      background: transparent;
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-color);
-      outline: none;
-      transition: border-color 0.2s ease;
+      width: 52px; height: 38px; text-align: center; background: transparent;
+      border: 1px solid var(--card-border); border-radius: 10px;
+      font-size: 16px; font-weight: 700; color: var(--text-color);
+      outline: none; transition: border-color 0.2s ease;
     }
-
-    .count-input:focus {
-      border-color: var(--accent-color);
-    }
-
-    /* Summary Panel (Fixed Bottom Sheet) */
+    .count-input:focus { border-color: var(--accent-color); }
     .summary-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      border-top: 1px solid var(--card-border);
-      border-top-left-radius: 24px;
-      border-top-right-radius: 24px;
-      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
-      padding: 18px 20px;
-      z-index: 100;
-      backdrop-filter: blur(16px);
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--card-bg); border-top: 1px solid var(--card-border);
+      border-top-left-radius: 24px; border-top-right-radius: 24px;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+      padding: 18px 20px; z-index: 100; backdrop-filter: blur(16px);
     }
-
-    .summary-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .summary-title {
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-secondary);
-    }
-
-    .btn-reset {
-      background: rgba(255, 59, 48, 0.15);
-      color: #ff453a;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-reset:active {
-      transform: scale(0.95);
-      background: rgba(255, 59, 48, 0.3);
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    .summary-row .value {
-      font-weight: 700;
-      color: var(--text-color);
-    }
-
-    .summary-row.total {
-      font-size: 16px;
-      font-weight: 800;
-      border-top: 1px dashed var(--card-border);
-      padding-top: 10px;
-      margin-top: 10px;
-      color: var(--text-color);
-    }
-
-    .summary-row.total .value {
-      color: var(--accent-color);
-      font-size: 18px;
-    }
-
-    /* RMS Tier Grid */
-    .rms-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-secondary);
-      margin-top: 14px;
-      margin-bottom: 8px;
-    }
-
-    .rms-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-
-    .rms-card {
-      background: var(--btn-bg);
-      border-radius: 12px;
-      padding: 10px 6px;
-      text-align: center;
-      border: 1px solid var(--card-border);
-      transition: all 0.2s ease;
-    }
-
-    .rms-card .title {
-      font-size: 11px;
-      color: var(--text-secondary);
-      font-weight: 700;
-    }
-
-    .rms-card .value {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--success-color);
-      margin-top: 4px;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .btn-action {
-      flex: 1;
-      height: 44px;
-      border-radius: 12px;
-      border: none;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-    }
-
-    .btn-share {
-      background: var(--accent-color);
-      color: #000;
-    }
-
-    .btn-share:active {
-      transform: scale(0.97);
-      background: var(--accent-hover);
-    }
-
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-secondary);
-    }
-
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-100px);
-      background: var(--accent-color);
-      color: #000;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 13px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      z-index: 999;
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
+    .summary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .summary-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
+    .btn-reset { background: rgba(255,59,48,0.15); color: #ff453a; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s ease; }
+    .btn-reset:active { transform: scale(0.95); background: rgba(255,59,48,0.3); }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary); }
+    .summary-row .value { font-weight: 700; color: var(--text-color); }
+    .summary-row.total { font-size: 16px; font-weight: 800; border-top: 1px dashed var(--card-border); padding-top: 10px; margin-top: 10px; color: var(--text-color); }
+    .summary-row.total .value { color: var(--accent-color); font-size: 18px; }
+    .rms-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-top: 14px; margin-bottom: 8px; }
+    .rms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .rms-card { background: var(--btn-bg); border-radius: 12px; padding: 10px 6px; text-align: center; border: 1px solid var(--card-border); transition: all 0.2s ease; }
+    .rms-card .title { font-size: 11px; color: var(--text-secondary); font-weight: 700; }
+    .rms-card .value { font-size: 14px; font-weight: 800; color: var(--success-color); margin-top: 4px; }
+    .action-buttons { display: flex; gap: 10px; margin-top: 14px; }
+    .btn-action { flex: 1; height: 44px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; }
+    .btn-share { background: var(--accent-color); color: #000; }
+    .btn-share:active { transform: scale(0.97); background: var(--accent-hover); }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--accent-color); color: #000; padding: 10px 20px; border-radius: 20px; font-weight: 700; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 999; opacity: 0; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
   </style>
 </head>
 <body>
-
-  <!-- Header -->
   <div class="app-header">
     <div class="brand-title">
       <div class="beeline-badge">B</div>
@@ -785,65 +154,43 @@
     </div>
   </div>
 
-  <!-- Controls Bar -->
   <div class="controls-bar">
     <div class="search-box">
       <span class="search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder="Tarif nomini izlash..." oninput="filterTariffs()">
     </div>
-    <button class="btn-edit-prices" id="editPricesBtn" onclick="toggleEditPrices()">
-      ✏️ Narxlar
-    </button>
+    <button class="btn-edit-prices" id="editPricesBtn" onclick="toggleEditPrices()">✏️ Narxlar</button>
   </div>
 
-  <!-- Tariff Cards Container -->
   <div class="tariff-list" id="tariffList"></div>
 
-  <!-- Summary Panel -->
   <div class="summary-panel">
     <div class="summary-header">
       <span class="summary-title">📊 Sotuv Hisoboti</span>
       <button class="btn-reset" onclick="resetSales()">Nolga tushirish</button>
     </div>
-
     <div class="summary-row">
       <span>Jami sotilgan SIM-kartalar:</span>
       <span class="value" id="totalSimsCount">0 dona</span>
     </div>
-    
     <div class="summary-row total">
       <span>Boshlang'ich bonus:</span>
       <span class="value" id="baseBonusAmount">0 so'm</span>
     </div>
-
     <div class="rms-title">⚡ RMS Bonus Koeffitsienti:</div>
     <div class="rms-grid">
-      <div class="rms-card">
-        <div class="title">+10% RMS</div>
-        <div class="value" id="rms10Amount">0 so'm</div>
-      </div>
-      <div class="rms-card">
-        <div class="title">+20% RMS</div>
-        <div class="value" id="rms20Amount">0 so'm</div>
-      </div>
-      <div class="rms-card">
-        <div class="title">+30% RMS</div>
-        <div class="value" id="rms30Amount">0 so'm</div>
-      </div>
+      <div class="rms-card"><div class="title">+10% RMS</div><div class="value" id="rms10Amount">0 so'm</div></div>
+      <div class="rms-card"><div class="title">+20% RMS</div><div class="value" id="rms20Amount">0 so'm</div></div>
+      <div class="rms-card"><div class="title">+30% RMS</div><div class="value" id="rms30Amount">0 so'm</div></div>
     </div>
-
     <div class="action-buttons">
-      <button class="btn-action btn-share" onclick="copyReport()">
-        📋 Hisobotni nusxalash
-      </button>
+      <button class="btn-action btn-share" onclick="copyReport()">📋 Hisobotni nusxalash</button>
     </div>
   </div>
 
-  <!-- Toast message -->
   <div class="toast" id="toast">Nusxalandi!</div>
 
   <script>
-    // 13 TA BEELINE TARIFI (Standart real diler bonus qiymatlari bilan)
     const defaultTariffs = [
       { id: 1, name: "Yorqin", category: "Ommabop", bonusPerSim: 20000 },
       { id: 2, name: "Vibe", category: "Yoshlar", bonusPerSim: 25000 },
@@ -860,19 +207,20 @@
       { id: 13, name: "Hello 2", category: "Turist", bonusPerSim: 15000 }
     ];
 
-    // LocalStorage or default
-    let tariffs = JSON.parse(localStorage.getItem('beeline_tariffs')) || defaultTariffs;
+    const savedTariffs = JSON.parse(localStorage.getItem('beeline_tariffs')) || [];
+    const savedMap = {};
+    savedTariffs.forEach(t => savedMap[t.id] = t);
+    let tariffs = defaultTariffs.map(t => ({
+      ...t,
+      bonusPerSim: (savedMap[t.id] !== undefined) ? savedMap[t.id].bonusPerSim : t.bonusPerSim
+    }));
     const salesData = {};
     tariffs.forEach(t => salesData[t.id] = 0);
-
     let isEditingPrices = false;
 
-    // Initialize Telegram WebApp
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
-      
-      // Auto dark/light theme matching Telegram
       if (window.Telegram.WebApp.colorScheme === 'light') {
         document.body.classList.add('light-mode');
         document.getElementById('themeToggleBtn').innerText = '☀️';
@@ -887,8 +235,7 @@
 
     function toggleTheme() {
       document.body.classList.toggle('light-mode');
-      const isLight = document.body.classList.contains('light-mode');
-      document.getElementById('themeToggleBtn').innerText = isLight ? '☀️' : '🌙';
+      document.getElementById('themeToggleBtn').innerText = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
       triggerHaptic();
     }
 
@@ -909,10 +256,9 @@
     }
 
     function updatePrice(tariffId, newPrice) {
-      const val = parseInt(newPrice) || 0;
       const tariff = tariffs.find(t => t.id === tariffId);
       if (tariff) {
-        tariff.bonusPerSim = Math.max(0, val);
+        tariff.bonusPerSim = Math.max(0, parseInt(newPrice) || 0);
         calculateTotals();
       }
     }
@@ -921,92 +267,60 @@
       const container = document.getElementById('tariffList');
       const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
       container.innerHTML = '';
-
       const filtered = tariffs.filter(t => t.name.toLowerCase().includes(searchTerm));
 
       if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <p>Siz qidirgan tarif topilmadi 🔍</p>
-          </div>
-        `;
+        container.innerHTML = '<div class="empty-state"><p>Siz qidirgan tarif topilmadi 🔍</p></div>';
         return;
       }
 
       filtered.forEach(tariff => {
         const count = salesData[tariff.id] || 0;
         const card = document.createElement('div');
-        card.className = `tariff-card ${count > 0 ? 'has-sales' : ''}`;
-        
-        let bonusDisplay = '';
+        card.className = 'tariff-card' + (count > 0 ? ' has-sales' : '');
+
+        let bonusDisplay;
         if (isEditingPrices) {
-          bonusDisplay = `
-            <div class="tariff-bonus-wrapper">
-              <span class="tariff-bonus">1 SIM: </span>
-              <input type="number" class="price-input" value="${tariff.bonusPerSim}" oninput="updatePrice(${tariff.id}, this.value)">
-              <span class="tariff-bonus">so'm</span>
-            </div>
-          `;
+          bonusDisplay = `<div class="tariff-bonus-wrapper"><span class="tariff-bonus">1 SIM: </span><input type="number" class="price-input" value="${tariff.bonusPerSim}" oninput="updatePrice(${tariff.id}, this.value)"><span class="tariff-bonus">so'm</span></div>`;
         } else {
-          bonusDisplay = `
-            <div class="tariff-bonus-wrapper">
-              <span class="tariff-bonus">1 SIM = <b>${tariff.bonusPerSim.toLocaleString()} so'm</b></span>
-            </div>
-          `;
+          bonusDisplay = `<div class="tariff-bonus-wrapper"><span class="tariff-bonus">1 SIM = <b>${tariff.bonusPerSim.toLocaleString()} so'm</b></span></div>`;
         }
 
         card.innerHTML = `
           <div class="tariff-info">
             <div class="tariff-name-row">
               <span class="tariff-name">${tariff.name}</span>
-              ${tariff.category ? `<span class="tariff-badge">${tariff.category}</span>` : ''}
+              ${tariff.category ? '<span class="tariff-badge">' + tariff.category + '</span>' : ''}
             </div>
             ${bonusDisplay}
           </div>
           <div class="counter-control">
-            <button class="btn-counter" onclick="updateCount(${tariff.id}, -1)">-</button>
+            <button class="btn-counter" onclick="updateCount(${tariff.id}, -1)">−</button>
             <input type="number" class="count-input" id="input-${tariff.id}" value="${count}" min="0" oninput="setCount(${tariff.id}, this.value)">
             <button class="btn-counter" onclick="updateCount(${tariff.id}, 1)">+</button>
-          </div>
-        `;
+          </div>`;
         container.appendChild(card);
       });
     }
 
-    function filterTariffs() {
-      renderTariffs();
-    }
+    function filterTariffs() { renderTariffs(); }
 
     function updateCount(tariffId, delta) {
       triggerHaptic();
-      const current = salesData[tariffId] || 0;
-      const updated = Math.max(0, current + delta);
+      const updated = Math.max(0, (salesData[tariffId] || 0) + delta);
       salesData[tariffId] = updated;
-      
-      const inputEl = document.getElementById(`input-${tariffId}`);
+      const inputEl = document.getElementById('input-' + tariffId);
       if (inputEl) inputEl.value = updated;
-      
-      // Toggle card active style
       const cardEl = inputEl ? inputEl.closest('.tariff-card') : null;
-      if (cardEl) {
-        if (updated > 0) cardEl.classList.add('has-sales');
-        else cardEl.classList.remove('has-sales');
-      }
-
+      if (cardEl) { updated > 0 ? cardEl.classList.add('has-sales') : cardEl.classList.remove('has-sales'); }
       calculateTotals();
     }
 
     function setCount(tariffId, value) {
-      const val = parseInt(value) || 0;
-      salesData[tariffId] = Math.max(0, val);
-      
-      const inputEl = document.getElementById(`input-${tariffId}`);
+      salesData[tariffId] = Math.max(0, parseInt(value) || 0);
+      const inputEl = document.getElementById('input-' + tariffId);
       const cardEl = inputEl ? inputEl.closest('.tariff-card') : null;
-      if (cardEl) {
-        if (salesData[tariffId] > 0) cardEl.classList.add('has-sales');
-        else cardEl.classList.remove('has-sales');
-      }
-
+      if (cardEl) { salesData[tariffId] > 0 ? cardEl.classList.add('has-sales') : cardEl.classList.remove('has-sales'); }
       calculateTotals();
     }
 
@@ -1019,79 +333,58 @@
     }
 
     function calculateTotals() {
-      let totalSims = 0;
-      let baseBonus = 0;
-
+      let totalSims = 0, baseBonus = 0;
       tariffs.forEach(tariff => {
         const count = salesData[tariff.id] || 0;
         totalSims += count;
         baseBonus += count * tariff.bonusPerSim;
       });
-
-      const rms10 = baseBonus * 1.10;
-      const rms20 = baseBonus * 1.20;
-      const rms30 = baseBonus * 1.30;
-
       document.getElementById('totalSimsCount').innerText = totalSims.toLocaleString() + " dona";
       document.getElementById('baseBonusAmount').innerText = Math.round(baseBonus).toLocaleString() + " so'm";
-      document.getElementById('rms10Amount').innerText = Math.round(rms10).toLocaleString() + " so'm";
-      document.getElementById('rms20Amount').innerText = Math.round(rms20).toLocaleString() + " so'm";
-      document.getElementById('rms30Amount').innerText = Math.round(rms30).toLocaleString() + " so'm";
+      document.getElementById('rms10Amount').innerText = Math.round(baseBonus * 1.10).toLocaleString() + " so'm";
+      document.getElementById('rms20Amount').innerText = Math.round(baseBonus * 1.20).toLocaleString() + " so'm";
+      document.getElementById('rms30Amount').innerText = Math.round(baseBonus * 1.30).toLocaleString() + " so'm";
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      return new Promise((res, rej) => { document.execCommand('copy') ? (ta.remove(), res()) : (ta.remove(), rej()); });
     }
 
     function copyReport() {
       triggerHaptic();
-      let totalSims = 0;
-      let baseBonus = 0;
-      let details = [];
-
+      let totalSims = 0, baseBonus = 0, details = [];
       tariffs.forEach(tariff => {
         const count = salesData[tariff.id] || 0;
         if (count > 0) {
           totalSims += count;
-          const subtotal = count * tariff.bonusPerSim;
-          baseBonus += subtotal;
-          details.push(`• ${tariff.name}: ${count} dona (${subtotal.toLocaleString()} so'm)`);
+          const sub = count * tariff.bonusPerSim;
+          baseBonus += sub;
+          details.push('• ' + tariff.name + ': ' + count + ' dona (' + sub.toLocaleString() + " so'm)");
         }
       });
-
-      if (totalSims === 0) {
-        showToast("Hisobot uchun sotuv kiritilmagan!");
-        return;
-      }
-
-      const rms10 = Math.round(baseBonus * 1.10).toLocaleString();
-      const rms20 = Math.round(baseBonus * 1.20).toLocaleString();
-      const rms30 = Math.round(baseBonus * 1.30).toLocaleString();
-
-      const text = `📊 *BEELINE DILER SOTUV HISOBOTI*\n\n` +
-        details.join('\n') + `\n\n` +
-        `-------------------------------\n` +
-        `📱 Jami sotilgan SIM: *${totalSims} dona*\n` +
-        `💰 Boshlang'ich bonus: *${Math.round(baseBonus).toLocaleString()} so'm*\n\n` +
-        `⚡ *RMS Bonusi bilan:*\n` +
-        `• +10% RMS: *${rms10} so'm*\n` +
-        `• +20% RMS: *${rms20} so'm*\n` +
-        `• +30% RMS: *${rms30} so'm*`;
-
-      navigator.clipboard.writeText(text).then(() => {
-        showToast("Hisobot buferga nusxalandi! 📋");
-      }).catch(err => {
-        showToast("Nusxalashda xatolik yuz berdi!");
-      });
+      if (totalSims === 0) { showToast("Hisobot uchun sotuv kiritilmagan!"); return; }
+      const text = '📊 *BEELINE DILER SOTUV HISOBOTI*\n\n' + details.join('\n') + '\n\n-------------------------------\n' +
+        '📱 Jami sotilgan SIM: *' + totalSims + " dona*\n" +
+        '💰 Boshlang\'ich bonus: *' + Math.round(baseBonus).toLocaleString() + " so'm*\n\n" +
+        '⚡ *RMS Bonusi bilan:*\n' +
+        '• +10% RMS: *' + Math.round(baseBonus * 1.10).toLocaleString() + " so'm*\n" +
+        '• +20% RMS: *' + Math.round(baseBonus * 1.20).toLocaleString() + " so'm*\n" +
+        '• +30% RMS: *' + Math.round(baseBonus * 1.30).toLocaleString() + " so'm*";
+      copyToClipboard(text).then(() => showToast("Hisobot buferga nusxalandi! 📋")).catch(() => showToast("Nusxalashda xatolik!"));
     }
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
-      toast.innerText = msg;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2500);
+      toast.innerText = msg; toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
     renderTariffs();
     calculateTotals();
   </script>
 </body>
-</html>
+</html>     
