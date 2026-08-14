@@ -39,7 +39,7 @@
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
-      margin: 0; padding: 16px; padding-bottom: 280px;
+      margin: 0; padding: 16px; padding-bottom: 380px;
       min-height: 100vh;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
@@ -95,7 +95,8 @@
     .tariff-bonus-wrapper { display: flex; align-items: center; gap: 6px; }
     .tariff-bonus { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
     .price-input { width: 90px; height: 28px; background: rgba(255,255,255,0.05); border: 1px solid var(--accent-color); border-radius: 6px; color: var(--accent-color); font-weight: 700; font-size: 12px; padding: 0 6px; outline: none; }
-    .counter-control { display: flex; align-items: center; gap: 8px; }
+    .counter-control { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .counter-row { display: flex; align-items: center; gap: 8px; }
     .btn-counter {
       width: 38px; height: 38px; border-radius: 10px; border: none;
       background-color: var(--btn-bg); font-size: 20px; font-weight: 700;
@@ -111,6 +112,13 @@
       outline: none; transition: border-color 0.2s ease;
     }
     .count-input:focus { border-color: var(--accent-color); }
+    .tariff-profit {
+      font-size: 11px; font-weight: 700; color: var(--success-color);
+      background: rgba(48, 209, 88, 0.12); border-radius: 6px;
+      padding: 2px 7px; white-space: nowrap;
+      transition: opacity 0.2s ease;
+    }
+    .tariff-profit.hidden { opacity: 0; pointer-events: none; }
     .summary-panel {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: var(--card-bg); border-top: 1px solid var(--card-border);
@@ -184,8 +192,12 @@
       <span class="value" id="totalBonusAmount">0 so'm</span>
     </div>
     <div class="summary-row">
-      <span>+ Kopilka:</span>
+      <span>+ Ko'pilka:</span>
       <span class="value" id="kopilkaAmount">0 so'm</span>
+    </div>
+    <div class="summary-row total" style="margin-top:6px;border-top:2px solid var(--accent-color);padding-top:10px">
+      <span>🏆 Umumiy jami:</span>
+      <span class="value" id="grandTotalAmount" style="color:#30d158;font-size:20px">0 so'm</span>
     </div>
     <div class="action-buttons">
       <button class="btn-action btn-share" onclick="copyReport()">📋 Hisobotni nusxalash</button>
@@ -314,15 +326,23 @@
             ${bonusDisplay}
           </div>
           <div class="counter-control">
-            <button class="btn-counter" onclick="updateCount(${tariff.id}, -1)">−</button>
-            <input type="number" class="count-input" id="input-${tariff.id}" value="${count}" min="0" oninput="setCount(${tariff.id}, this.value)">
-            <button class="btn-counter" onclick="updateCount(${tariff.id}, 1)">+</button>
+            <div class="counter-row">
+              <button class="btn-counter" onclick="updateCount(${tariff.id}, -1)">−</button>
+              <input type="number" class="count-input" id="input-${tariff.id}" value="${count}" min="0" oninput="setCount(${tariff.id}, this.value)">
+              <button class="btn-counter" onclick="updateCount(${tariff.id}, 1)">+</button>
+            </div>
+            <span class="tariff-profit${count > 0 ? '' : ' hidden'}" id="profit-${tariff.id}">${count > 0 ? formatProfit(tariff, count) : ''}</span>
           </div>`;
         container.appendChild(card);
       });
     }
 
     function filterTariffs() { renderTariffs(); }
+
+    function formatProfit(tariff, count) {
+      const total = count * (tariff.m1 + tariff.m2 + tariff.m3 + tariff.k);
+      return '+' + total.toLocaleString() + " so'm";
+    }
 
     function updateCount(tariffId, delta) {
       triggerHaptic();
@@ -332,6 +352,12 @@
       if (inputEl) inputEl.value = updated;
       const cardEl = inputEl ? inputEl.closest('.tariff-card') : null;
       if (cardEl) { updated > 0 ? cardEl.classList.add('has-sales') : cardEl.classList.remove('has-sales'); }
+      const profitEl = document.getElementById('profit-' + tariffId);
+      if (profitEl) {
+        const tariff = tariffs.find(t => t.id === tariffId);
+        profitEl.innerText = formatProfit(tariff, updated);
+        updated > 0 ? profitEl.classList.remove('hidden') : profitEl.classList.add('hidden');
+      }
       calculateTotals();
     }
 
@@ -340,6 +366,12 @@
       const inputEl = document.getElementById('input-' + tariffId);
       const cardEl = inputEl ? inputEl.closest('.tariff-card') : null;
       if (cardEl) { salesData[tariffId] > 0 ? cardEl.classList.add('has-sales') : cardEl.classList.remove('has-sales'); }
+      const profitEl = document.getElementById('profit-' + tariffId);
+      if (profitEl) {
+        const tariff = tariffs.find(t => t.id === tariffId);
+        profitEl.innerText = formatProfit(tariff, salesData[tariffId]);
+        salesData[tariffId] > 0 ? profitEl.classList.remove('hidden') : profitEl.classList.add('hidden');
+      }
       calculateTotals();
     }
 
@@ -349,6 +381,16 @@
       renderTariffs();
       calculateTotals();
       showToast("Barcha ko'rsatkichlar nolga tushirildi!");
+    }
+
+    // Oila Max (id=3), Oila Ultra (id=4), Oila Mega (id=5) => har biri uchun 2 ta Oddiy avtomatik
+    const oilaIds = [3, 4, 5];
+    const oddiyTariff = defaultTariffs.find(t => t.name === 'Oddiy'); // faqat m1 kerak
+
+    function getAutoOddiyCount() {
+      let oilaTotal = 0;
+      oilaIds.forEach(id => { oilaTotal += salesData[id] || 0; });
+      return oilaTotal * 2;
     }
 
     function calculateTotals() {
@@ -361,13 +403,21 @@
         month3  += count * tariff.m3;
         kopilka += count * tariff.k;
       });
+      // Avtomatik Oddiy: har bir Oila (Max/Ultra/Mega) SIM uchun 2 ta Oddiy qo'shiladi
+      // Oddiy faqat 1-oyga ta'sir qiladi (m2=0, m3=0, k=0)
+      const autoOddiy = getAutoOddiyCount();
+      const oddiyM1 = tariffs.find(t => t.id === 6)?.m1 || 10000;
+      totalSims += autoOddiy;
+      month1 += autoOddiy * oddiyM1;
       const total3 = month1 + month2 + month3;
+      const grandTotal = total3 + kopilka;
       document.getElementById('totalSimsCount').innerText  = totalSims.toLocaleString() + " dona";
       document.getElementById('month1Amount').innerText    = month1.toLocaleString()  + " so'm";
       document.getElementById('month2Amount').innerText    = month2.toLocaleString()  + " so'm";
       document.getElementById('month3Amount').innerText    = month3.toLocaleString()  + " so'm";
       document.getElementById('totalBonusAmount').innerText = total3.toLocaleString() + " so'm";
       document.getElementById('kopilkaAmount').innerText   = kopilka.toLocaleString() + " so'm";
+      document.getElementById('grandTotalAmount').innerText = grandTotal.toLocaleString() + " so'm";
     }
 
     function copyToClipboard(text) {
@@ -394,14 +444,24 @@
         }
       });
       if (totalSims === 0) { showToast("Hisobot uchun sotuv kiritilmagan!"); return; }
+      // Avtomatik Oddiy SIM-lar
+      const autoOddiy = getAutoOddiyCount();
+      const oddiyM1 = tariffs.find(t => t.id === 6)?.m1 || 10000;
+      if (autoOddiy > 0) {
+        details.push('• Oddiy (avtomatik): ' + autoOddiy + ' dona (1-oy: ' + (autoOddiy * oddiyM1).toLocaleString() + " so'm)");
+        totalSims += autoOddiy;
+        month1 += autoOddiy * oddiyM1;
+      }
       const total3 = month1 + month2 + month3;
+      const grandTotal = total3 + kopilka;
       const text = '📊 *BEELINE DILER SOTUV HISOBOTI*\n\n' + details.join('\n') + '\n\n-------------------------------\n' +
         '📱 Jami sotilgan SIM: *' + totalSims + " dona*\n" +
         '💰 1-oy bonus: *' + month1.toLocaleString() + " so'm*\n" +
         '💰 2-oy bonus: *' + month2.toLocaleString() + " so'm*\n" +
         '💰 3-oy bonus: *' + month3.toLocaleString() + " so'm*\n" +
         '💵 Jami 3 oy: *' + total3.toLocaleString() + " so'm*\n" +
-        '🏦 Kopilka: *' + kopilka.toLocaleString() + " so'm*";
+        '🏦 Ko\'pilka: *' + kopilka.toLocaleString() + " so'm*\n" +
+        '🏆 Umumiy jami: *' + grandTotal.toLocaleString() + " so'm*";
       copyToClipboard(text).then(() => showToast("Hisobot buferga nusxalandi! 📋")).catch(() => showToast("Nusxalashda xatolik!"));
     }
 
