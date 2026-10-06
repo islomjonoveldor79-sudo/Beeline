@@ -35,27 +35,17 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // Oxiridagi ortiqcha '/' bo'lsa olib tashlanadi
-  const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
+  // URL ni normallashtiramiz: oxiridagi '/' va ortiqcha '/rest/v1'
+  // bo'lagi bo'lsa olib tashlanadi, chunki uni quyida o'zimiz qo'shamiz.
+  const SUPABASE_URL = (process.env.SUPABASE_URL || '')
+    .trim()
+    .replace(/\/+$/, '')
+    .replace(/\/rest\/v1$/, '')
+    .replace(/\/+$/, '');
   const SERVICE_KEY  = process.env.SUPABASE_SERVICE_KEY;
   if (!SUPABASE_URL || !SERVICE_KEY) {
     // Hali sozlanmagan bo'lsa ham ilova ishlashda davom etsin
     res.status(200).json({ ok: false, error: 'sozlanmagan' });
-    return;
-  }
-
-  // Vaqtinchalik tashxis: sozlamalar to'g'ri kiritilganini tekshirish uchun.
-  // Maxfiy kalitning o'zi qaytarilmaydi — faqat uzunligi va boshlanishi.
-  if (req.headers['x-diag'] === 'beeline') {
-    let host = null, path = null;
-    try { const u = new URL(SUPABASE_URL); host = u.hostname; path = u.pathname; } catch (e) {}
-    res.status(200).json({
-      diag: true,
-      url_host: host,
-      url_path: path,
-      key_uzunligi: SERVICE_KEY.length,
-      key_boshi: SERVICE_KEY.slice(0, 4)
-    });
     return;
   }
 
