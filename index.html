@@ -73,14 +73,6 @@
     }
     .search-box input:focus { border-color: var(--accent-color); }
     .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 16px; }
-    .btn-edit-prices {
-      height: 44px; padding: 0 14px; background: var(--card-bg);
-      border: 1px solid var(--card-border); border-radius: 12px;
-      color: var(--accent-color); font-weight: 600; font-size: 13px;
-      cursor: pointer; display: flex; align-items: center; gap: 6px;
-      white-space: nowrap; transition: all 0.2s ease;
-    }
-    .btn-edit-prices.active { background: var(--accent-color); color: #000; }
     .tariff-list { display: flex; flex-direction: column; gap: 12px; }
     .tariff-card {
       background-color: var(--card-bg); border: 1px solid var(--card-border);
@@ -95,7 +87,6 @@
     .tariff-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px; background: rgba(255, 204, 0, 0.15); color: var(--accent-color); text-transform: uppercase; }
     .tariff-bonus-wrapper { display: flex; align-items: center; gap: 6px; }
     .tariff-bonus { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
-    .price-input { width: 90px; height: 28px; background: rgba(255,255,255,0.05); border: 1px solid var(--accent-color); border-radius: 6px; color: var(--accent-color); font-weight: 700; font-size: 12px; padding: 0 6px; outline: none; }
     .counter-control { display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .counter-row { display: flex; align-items: center; gap: 8px; }
     .btn-counter {
@@ -168,7 +159,6 @@
       <span class="search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder="Tarif nomini izlash..." oninput="filterTariffs()">
     </div>
-    <button class="btn-edit-prices" id="editPricesBtn" onclick="toggleEditPrices()">✏️ Narxlar</button>
   </div>
 
   <div class="tariff-list" id="tariffList"></div>
@@ -210,36 +200,18 @@
   <script>
     // m1=1-oy, m2=2-oy, m3=3-oy, k=Kopilka (so'm per SIM)
     const defaultTariffs = [
-      { id: 1,  name: "Yorqin",          category: "Ommabop", m1: 31500, m2: 31500, m3: 31500, k: 7000  },
-      { id: 2,  name: "Vibe",            category: "Yoshlar", m1: 36000, m2: 36000, m3: 36000, k: 7000  },
-      { id: 3,  name: "Oila Max",        category: "Oila",    m1: 45000, m2: 45000, m3: 45000, k: 15000 },
-      { id: 4,  name: "Oila Ultra",      category: "Oila",    m1: 75000, m2: 75000, m3: 75000, k: 20000 },
-      { id: 5,  name: "Oila Mega",       category: "Oila",    m1: 90000, m2: 90000, m3: 90000, k: 20000 },
-      { id: 6,  name: "Oddiy",           category: "Bazaviy", m1: 10000, m2: 0,     m3: 0,     k: 0     },
-      { id: 7,  name: "Standart",        category: "Bazaviy", m1: 4500,  m2: 4500,  m3: 4500,  k: 0     },
-      { id: 8,  name: "Standart+",       category: "Bazaviy", m1: 4500,  m2: 4500,  m3: 4500,  k: 0     },
-      { id: 9,  name: "Optimal",         category: "Bazaviy", m1: 5500,  m2: 5500,  m3: 5500,  k: 0     },
-      { id: 10, name: "Status Silver",   category: "VIP",     m1: 49500, m2: 49500, m3: 49500, k: 15000 },
-      { id: 11, name: "Status Gold",     category: "VIP",     m1: 67500, m2: 67500, m3: 67500, k: 20000 },
-      { id: 12, name: "Status Platinum", category: "VIP",     m1: 90000, m2: 90000, m3: 90000, k: 20000 },
-      { id: 13, name: "Hello 1",         category: "Turist",  m1: 6000,  m2: 6000,  m3: 6000,  k: 0     },
-      { id: 14, name: "Hello 2",         category: "Turist",  m1: 40000, m2: 40000, m3: 40000, k: 7000  },
-      { id: 15, name: "Oltin Vodiy",     category: "Maxsus",  m1: 31500, m2: 31500, m3: 31500, k: 7000  }
+      { id: 2, name: "VIBE",      category: "Yoshlar", m1: 36000, m2: 36000, m3: 36000, k: 7000  },
+      { id: 3, name: "Oila 3",    category: "Oila",    m1: 45000, m2: 45000, m3: 45000, k: 15000 },
+      { id: 4, name: "Oila 5",    category: "Oila",    m1: 75000, m2: 75000, m3: 75000, k: 20000 },
+      { id: 5, name: "Oila 7",    category: "Oila",    m1: 90000, m2: 90000, m3: 90000, k: 20000 },
+      { id: 6, name: "Oddiy",     category: "Bazaviy", m1: 10000, m2: 0,     m3: 0,     k: 0     },
+      { id: 8, name: "Suhbat +",  category: "Bazaviy", m1: 4500,  m2: 4500,  m3: 4500,  k: 0     },
+      { id: 9, name: "Optimal +", category: "Bazaviy", m1: 5500,  m2: 5500,  m3: 5500,  k: 0     }
     ];
 
-    const savedTariffs = JSON.parse(localStorage.getItem('beeline_tariffs_v2')) || [];
-    const savedMap = {};
-    savedTariffs.forEach(t => savedMap[t.id] = t);
-    let tariffs = defaultTariffs.map(t => ({
-      ...t,
-      m1: savedMap[t.id]?.m1 ?? t.m1,
-      m2: savedMap[t.id]?.m2 ?? t.m2,
-      m3: savedMap[t.id]?.m3 ?? t.m3,
-      k:  savedMap[t.id]?.k  ?? t.k
-    }));
+    const tariffs = defaultTariffs.map(t => ({ ...t }));
     const salesData = {};
     tariffs.forEach(t => salesData[t.id] = 0);
-    let isEditingPrices = false;
 
     if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp;
@@ -273,30 +245,6 @@
       triggerHaptic();
     }
 
-    function toggleEditPrices() {
-      isEditingPrices = !isEditingPrices;
-      const btn = document.getElementById('editPricesBtn');
-      if (isEditingPrices) {
-        btn.classList.add('active');
-        btn.innerHTML = '✅ Saqlash';
-      } else {
-        btn.classList.remove('active');
-        btn.innerHTML = '✏️ Narxlar';
-        localStorage.setItem('beeline_tariffs_v2', JSON.stringify(tariffs));
-        showToast("Bonus narxlari saqlandi!");
-      }
-      renderTariffs();
-      triggerHaptic();
-    }
-
-    function updatePrice(tariffId, field, newPrice) {
-      const tariff = tariffs.find(t => t.id === tariffId);
-      if (tariff) {
-        tariff[field] = Math.max(0, parseInt(newPrice) || 0);
-        calculateTotals();
-      }
-    }
-
     function renderTariffs() {
       const container = document.getElementById('tariffList');
       const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -313,21 +261,11 @@
         const card = document.createElement('div');
         card.className = 'tariff-card' + (count > 0 ? ' has-sales' : '');
 
-        let bonusDisplay;
-        if (isEditingPrices) {
-          bonusDisplay = `<div class="tariff-bonus-wrapper" style="flex-direction:column;gap:4px">
-            <div style="display:flex;align-items:center;gap:6px"><span class="tariff-bonus">1-oy:</span><input type="number" class="price-input" value="${tariff.m1}" oninput="updatePrice(${tariff.id},'m1',this.value)"><span class="tariff-bonus">so'm</span></div>
-            <div style="display:flex;align-items:center;gap:6px"><span class="tariff-bonus">2-oy:</span><input type="number" class="price-input" value="${tariff.m2}" oninput="updatePrice(${tariff.id},'m2',this.value)"><span class="tariff-bonus">so'm</span></div>
-            <div style="display:flex;align-items:center;gap:6px"><span class="tariff-bonus">3-oy:</span><input type="number" class="price-input" value="${tariff.m3}" oninput="updatePrice(${tariff.id},'m3',this.value)"><span class="tariff-bonus">so'm</span></div>
-            <div style="display:flex;align-items:center;gap:6px"><span class="tariff-bonus">Kopilka:</span><input type="number" class="price-input" value="${tariff.k}" oninput="updatePrice(${tariff.id},'k',this.value)"><span class="tariff-bonus">so'm</span></div>
-          </div>`;
-        } else {
-          const total3 = tariff.m1 + tariff.m2 + tariff.m3;
-          bonusDisplay = `<div class="tariff-bonus-wrapper" style="flex-direction:column;gap:2px">
-            <span class="tariff-bonus">1-oy: <b>${tariff.m1.toLocaleString()}</b> | 2-oy: <b>${tariff.m2.toLocaleString()}</b> | 3-oy: <b>${tariff.m3.toLocaleString()}</b></span>
-            <span class="tariff-bonus">Jami 3 oy: <b>${total3.toLocaleString()} so'm</b>${tariff.k > 0 ? ' + Kopilka: <b>' + tariff.k.toLocaleString() + ' so\'m</b>' : ''}</span>
-          </div>`;
-        }
+        const total3 = tariff.m1 + tariff.m2 + tariff.m3;
+        const bonusDisplay = `<div class="tariff-bonus-wrapper" style="flex-direction:column;gap:2px">
+          <span class="tariff-bonus">1-oy: <b>${tariff.m1.toLocaleString()}</b> | 2-oy: <b>${tariff.m2.toLocaleString()}</b> | 3-oy: <b>${tariff.m3.toLocaleString()}</b></span>
+          <span class="tariff-bonus">Jami 3 oy: <b>${total3.toLocaleString()} so'm</b>${tariff.k > 0 ? ' + Kopilka: <b>' + tariff.k.toLocaleString() + ' so\'m</b>' : ''}</span>
+        </div>`;
 
         card.innerHTML = `
           <div class="tariff-info">
@@ -395,7 +333,7 @@
       showToast("Barcha ko'rsatkichlar nolga tushirildi!");
     }
 
-    // Oila Max (id=3), Oila Ultra (id=4), Oila Mega (id=5) => har biri uchun 2 ta Oddiy avtomatik
+    // Oila 3 (id=3), Oila 5 (id=4), Oila 7 (id=5) => har biri uchun 2 ta Oddiy avtomatik
     const oilaIds = [3, 4, 5];
     const oddiyTariff = defaultTariffs.find(t => t.name === 'Oddiy'); // faqat m1 kerak
 
