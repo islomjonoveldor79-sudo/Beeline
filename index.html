@@ -265,6 +265,7 @@
         const bonusDisplay = `<div class="tariff-bonus-wrapper" style="flex-direction:column;gap:2px">
           <span class="tariff-bonus">1-oy: <b>${tariff.m1.toLocaleString()}</b> | 2-oy: <b>${tariff.m2.toLocaleString()}</b> | 3-oy: <b>${tariff.m3.toLocaleString()}</b></span>
           <span class="tariff-bonus">Jami 3 oy: <b>${total3.toLocaleString()} so'm</b>${tariff.k > 0 ? ' + Kopilka: <b>' + tariff.k.toLocaleString() + ' so\'m</b>' : ''}</span>
+          ${oilaIds.includes(tariff.id) ? `<span class="tariff-bonus">+ ${ODDIY_PER_OILA} ta avtomatik Oddiy: <b>${(ODDIY_PER_OILA * oddiyM1()).toLocaleString()} so'm</b></span>` : ''}
         </div>`;
 
         card.innerHTML = `
@@ -290,7 +291,9 @@
     function filterTariffs() { renderTariffs(); }
 
     function formatProfit(tariff, count) {
-      const total = count * (tariff.m1 + tariff.m2 + tariff.m3 + tariff.k);
+      let total = count * (tariff.m1 + tariff.m2 + tariff.m3 + tariff.k);
+      // Oila tariflarida avtomatik qo'shiladigan Oddiy bonusi ham hisobga olinadi
+      if (oilaIds.includes(tariff.id)) total += count * ODDIY_PER_OILA * oddiyM1();
       return '+' + total.toLocaleString() + " so'm";
     }
 
@@ -335,12 +338,13 @@
 
     // Oila 3 (id=3), Oila 5 (id=4), Oila 7 (id=5) => har biri uchun 2 ta Oddiy avtomatik
     const oilaIds = [3, 4, 5];
-    const oddiyTariff = defaultTariffs.find(t => t.name === 'Oddiy'); // faqat m1 kerak
+    const ODDIY_PER_OILA = 2;  // har bir Oila SIM uchun avtomatik qo'shiladigan Oddiy soni
+    function oddiyM1() { return tariffs.find(t => t.id === 6)?.m1 || 10000; }
 
     function getAutoOddiyCount() {
       let oilaTotal = 0;
       oilaIds.forEach(id => { oilaTotal += salesData[id] || 0; });
-      return oilaTotal * 2;
+      return oilaTotal * ODDIY_PER_OILA;
     }
 
     function calculateTotals() {
@@ -356,9 +360,8 @@
       // Avtomatik Oddiy: har bir Oila (Max/Ultra/Mega) SIM uchun 2 ta Oddiy qo'shiladi
       // Oddiy faqat 1-oyga ta'sir qiladi (m2=0, m3=0, k=0)
       const autoOddiy = getAutoOddiyCount();
-      const oddiyM1 = tariffs.find(t => t.id === 6)?.m1 || 10000;
       totalSims += autoOddiy;
-      month1 += autoOddiy * oddiyM1;
+      month1 += autoOddiy * oddiyM1();
       const total3 = month1 + month2 + month3;
       const grandTotal = total3 + kopilka;
       document.getElementById('totalSimsCount').innerText  = totalSims.toLocaleString() + " dona";
@@ -396,11 +399,10 @@
       if (totalSims === 0) { showToast("Hisobot uchun sotuv kiritilmagan!"); return; }
       // Avtomatik Oddiy SIM-lar
       const autoOddiy = getAutoOddiyCount();
-      const oddiyM1 = tariffs.find(t => t.id === 6)?.m1 || 10000;
       if (autoOddiy > 0) {
-        details.push('• Oddiy (avtomatik): ' + autoOddiy + ' dona (1-oy: ' + (autoOddiy * oddiyM1).toLocaleString() + " so'm)");
+        details.push('• Oddiy (avtomatik): ' + autoOddiy + ' dona (1-oy: ' + (autoOddiy * oddiyM1()).toLocaleString() + " so'm)");
         totalSims += autoOddiy;
-        month1 += autoOddiy * oddiyM1;
+        month1 += autoOddiy * oddiyM1();
       }
       const total3 = month1 + month2 + month3;
       const grandTotal = total3 + kopilka;
