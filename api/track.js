@@ -44,6 +44,21 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Vaqtinchalik tashxis: sozlamalar to'g'ri kiritilganini tekshirish uchun.
+  // Maxfiy kalitning o'zi qaytarilmaydi — faqat uzunligi va boshlanishi.
+  if (req.headers['x-diag'] === 'beeline') {
+    let host = null, path = null;
+    try { const u = new URL(SUPABASE_URL); host = u.hostname; path = u.pathname; } catch (e) {}
+    res.status(200).json({
+      diag: true,
+      url_host: host,
+      url_path: path,
+      key_uzunligi: SERVICE_KEY.length,
+      key_boshi: SERVICE_KEY.slice(0, 4)
+    });
+    return;
+  }
+
   // sendBeacon matn ko'rinishida yuborishi mumkin
   let body = req.body;
   if (typeof body === 'string') {
