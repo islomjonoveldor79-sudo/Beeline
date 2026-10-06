@@ -91,7 +91,9 @@ module.exports = async (req, res) => {
     if (!javob.ok) {
       const matn = await javob.text();
       console.error('Supabase xatosi:', javob.status, matn);
-      res.status(200).json({ ok: false });
+      // Faqat HTTP status qaytariladi — xato matni oshkor qilinmaydi.
+      // 404 = SQL skript ishga tushirilmagan, 401 = kalit noto'g'ri
+      res.status(200).json({ ok: false, status: javob.status });
       return;
     }
 
