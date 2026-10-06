@@ -21,7 +21,7 @@ const HUDUDLAR = {
   NG: "Namangan",
   NW: "Navoiy",
   QA: "Qashqadaryo",
-  QR: "Qoraqalpog'iston Respublikasi",
+  QR: "Qoraqalpog'iston",
   SA: "Samarqand",
   SI: "Sirdaryo",
   SU: "Surxondaryo"
