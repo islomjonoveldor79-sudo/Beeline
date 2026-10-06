@@ -73,6 +73,43 @@
     }
     .search-box input:focus { border-color: var(--accent-color); }
     .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 16px; }
+    .btn-region {
+      height: 44px; padding: 0 14px; background: var(--card-bg);
+      border: 1px solid var(--card-border); border-radius: 12px;
+      color: var(--accent-color); font-weight: 600; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      white-space: nowrap; max-width: 150px; overflow: hidden;
+      text-overflow: ellipsis; transition: all 0.2s ease;
+    }
+    .btn-region:hover { background: var(--btn-hover); }
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000; padding: 16px;
+      background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--border-radius); padding: 20px;
+      width: 100%; max-width: 440px; max-height: 88vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    }
+    .modal h2 { margin: 0 0 6px; font-size: 18px; color: var(--text-color); }
+    .modal p { margin: 0 0 16px; font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .region-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .region-btn {
+      padding: 12px 10px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--card-border); background: var(--btn-bg);
+      color: var(--text-color); cursor: pointer; text-align: center;
+      transition: all 0.15s ease;
+    }
+    .region-btn:hover { background: var(--btn-hover); border-color: var(--accent-color); }
+    .region-btn.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+    .modal-skip {
+      display: block; width: 100%; margin-top: 14px; padding: 10px;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-secondary); font-size: 13px; text-decoration: underline;
+    }
     .tariff-list { display: flex; flex-direction: column; gap: 12px; }
     .tariff-card {
       background-color: var(--card-bg); border: 1px solid var(--card-border);
@@ -159,6 +196,7 @@
       <span class="search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder="Tarif nomini izlash..." oninput="filterTariffs()">
     </div>
+    <button class="btn-region" id="regionBtn" onclick="viloyatOynasiniOch()"> 📍 <span id="regionLabel">Viloyat</span></button>
   </div>
 
   <div class="tariff-list" id="tariffList"></div>
@@ -192,6 +230,15 @@
     </div>
     <div class="action-buttons">
       <button class="btn-action btn-share" onclick="copyReport()">📋 Hisobotni nusxalash</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="regionModal">
+    <div class="modal">
+      <h2>Viloyatingizni tanlang</h2>
+      <p>Bu ma'lumot faqat statistika uchun to'planadi &mdash; qaysi hududlarda kalkulyator qanchalik faol ishlatilayotganini bilish uchun. Ismingiz, telefoningiz yoki boshqa shaxsiy ma'lumot saqlanmaydi.</p>
+      <div class="region-grid" id="regionGrid"></div>
+      <button class="modal-skip" id="regionSkip" onclick="viloyatOynasiniYop()">Keyinroq</button>
     </div>
   </div>
 
@@ -414,7 +461,7 @@
         '💵 Jami 3 oy: *' + total3.toLocaleString() + " so'm*\n" +
         '🏦 Ko\'pilka: *' + kopilka.toLocaleString() + " so'm*\n" +
         '🏆 Umumiy jami: *' + grandTotal.toLocaleString() + " so'm*";
-      copyToClipboard(text).then(() => showToast("Hisobot buferga nusxalandi! 📋")).catch(() => showToast("Nusxalashda xatolik!"));
+      copyToClipboard(text).then(() => { showToast("Hisobot buferga nusxalandi! 📋"); statYubor('report_copied', { jami_sim: totalSims, umumiy: grandTotal }); }).catch(() => showToast("Nusxalashda xatolik!"));
     }
 
     function showToast(msg) {
@@ -423,8 +470,110 @@
       setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
+    // =================================================================
+    //  FOYDALANISH STATISTIKASI (anonim)
+    //  Shaxsiy ma'lumot yig'ilmaydi: faqat brauzerda generatsiya
+    //  qilinadigan tasodifiy qurilma ID va diler tanlagan viloyat.
+    //  Statistika ishlamay qolsa ham kalkulyator normal ishlaydi.
+    // =================================================================
+    const VILOYATLAR = [
+      "Toshkent shahri", "Toshkent viloyati", "Andijon", "Buxoro",
+      "Farg'ona", "Jizzax", "Xorazm", "Namangan", "Navoiy",
+      "Qashqadaryo", "Qoraqalpog'iston", "Samarqand", "Sirdaryo", "Surxondaryo"
+    ];
+
+    const QURILMA_KEY = 'bd_device_id';
+    const VILOYAT_KEY = 'bd_region';
+
+    function xotiraOl(kalit) {
+      try { return localStorage.getItem(kalit); } catch (e) { return null; }
+    }
+    function xotiraYoz(kalit, qiymat) {
+      try { localStorage.setItem(kalit, qiymat); } catch (e) {}
+    }
+    function yangiId() {
+      try {
+        if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      } catch (e) {}
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    }
+
+    let qurilmaId = xotiraOl(QURILMA_KEY);
+    if (!qurilmaId) { qurilmaId = yangiId(); xotiraYoz(QURILMA_KEY, qurilmaId); }
+    const sessiyaId = yangiId();
+
+    function statYubor(turi, qoshimcha) {
+      try {
+        fetch('/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            device_id:   qurilmaId,
+            session_id:  sessiyaId,
+            type:        turi,
+            region:      xotiraOl(VILOYAT_KEY),
+            is_telegram: !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData),
+            payload:     qoshimcha || null
+          }),
+          keepalive: true
+        }).catch(function () {});
+      } catch (e) {}
+    }
+
+    statYubor('session_start');
+    // Har 20 soniyada "tirikman" signali — panel shu asosda onlayn sonini hisoblaydi
+    setInterval(function () { if (!document.hidden) statYubor('heartbeat'); }, 20000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) statYubor('heartbeat');
+    });
+
+    // ---------- Viloyat tanlash ----------
+    function viloyatYorliginiYangila() {
+      const v = xotiraOl(VILOYAT_KEY);
+      document.getElementById('regionLabel').innerText = v || 'Viloyat';
+    }
+
+    function viloyatOynasiniOch() {
+      const tanlangan = xotiraOl(VILOYAT_KEY);
+      const grid = document.getElementById('regionGrid');
+      grid.innerHTML = '';
+      VILOYATLAR.forEach(function (nom) {
+        const b = document.createElement('button');
+        b.className = 'region-btn' + (nom === tanlangan ? ' active' : '');
+        b.innerText = nom;
+        b.onclick = function () { viloyatniSaqla(nom); };
+        grid.appendChild(b);
+      });
+      // Viloyat allaqachon tanlangan bo'lsa "Keyinroq" o'rniga "Yopish"
+      document.getElementById('regionSkip').innerText = tanlangan ? 'Yopish' : 'Keyinroq';
+      document.getElementById('regionModal').classList.remove('hidden');
+    }
+
+    function viloyatOynasiniYop() {
+      document.getElementById('regionModal').classList.add('hidden');
+    }
+
+    function viloyatniSaqla(nom) {
+      xotiraYoz(VILOYAT_KEY, nom);
+      viloyatYorliginiYangila();
+      viloyatOynasiniYop();
+      triggerHaptic();
+      statYubor('region_set');
+      showToast('Viloyat saqlandi: ' + nom);
+    }
+
+    // Viloyat hali tanlanmagan bo'lsa, oynani bir oz kechikib ko'rsatamiz
+    function viloyatTekshir() {
+      if (!xotiraOl(VILOYAT_KEY)) setTimeout(viloyatOynasiniOch, 600);
+    }
+
     renderTariffs();
     calculateTotals();
+    viloyatYorliginiYangila();
+    viloyatTekshir();
   </script>
 </body>
 </html>
