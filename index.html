@@ -306,11 +306,13 @@
         const card = document.createElement('div');
         card.className = 'tariff-card' + (count > 0 ? ' has-sales' : '');
 
-        const total3 = tariff.m1 + tariff.m2 + tariff.m3;
-        const bonusDisplay = `<div class="tariff-bonus-wrapper" style="flex-direction:column;gap:2px">
-          <span class="tariff-bonus">1-oy: <b>${tariff.m1.toLocaleString()}</b> | 2-oy: <b>${tariff.m2.toLocaleString()}</b> | 3-oy: <b>${tariff.m3.toLocaleString()}</b></span>
-          <span class="tariff-bonus">Jami 3 oy: <b>${total3.toLocaleString()} so'm</b>${tariff.k > 0 ? ' + Kopilka: <b>' + tariff.k.toLocaleString() + ' so\'m</b>' : ''}</span>
-          ${oilaIds.includes(tariff.id) ? `<span class="tariff-bonus">+ ${ODDIY_PER_OILA} ta avtomatik Oddiy: <b>${(ODDIY_PER_OILA * oddiyM1()).toLocaleString()} so'm</b></span>` : ''}
+        const oy1 = birinchiOy(tariff);
+        const total3 = oy1 + tariff.m2 + tariff.m3;
+        const kop = alohidaKopilka(tariff);
+        const bonusDisplay = `<div class="tariff-bonus-wrapper" style="flex-direction:column;align-items:flex-start;gap:2px">
+          <span class="tariff-bonus">1-oy: <b>${oy1.toLocaleString()}</b> | 2-oy: <b>${tariff.m2.toLocaleString()}</b> | 3-oy: <b>${tariff.m3.toLocaleString()}</b></span>
+          <span class="tariff-bonus">Jami 3 oy: <b>${total3.toLocaleString()} so'm</b>${kop > 0 ? ' + Kopilka: <b>' + kop.toLocaleString() + ' so\'m</b>' : ''}</span>
+          ${oilami(tariff.id) && tariff.k > 0 ? `<span class="tariff-bonus">1-oyga ko'pilka <b>${tariff.k.toLocaleString()} so'm</b> kiritilgan</span>` : ''}
         </div>`;
 
         card.innerHTML = `
@@ -336,9 +338,8 @@
     function filterTariffs() { renderTariffs(); }
 
     function formatProfit(tariff, count) {
-      let total = count * (tariff.m1 + tariff.m2 + tariff.m3 + tariff.k);
-      // Oila tariflarida avtomatik qo'shiladigan Oddiy bonusi ham hisobga olinadi
-      if (oilaIds.includes(tariff.id)) total += count * ODDIY_PER_OILA * oddiyM1();
+      // Ko'pilka qayerda hisoblanishidan qat'i nazar, bir marta qo'shiladi
+      const total = count * (tariff.m1 + tariff.m2 + tariff.m3 + tariff.k);
       return '+' + total.toLocaleString() + " so'm";
     }
 
@@ -381,15 +382,18 @@
       showToast("Barcha ko'rsatkichlar nolga tushirildi!");
     }
 
-    // Oila 3 (id=3), Oila 5 (id=4), Oila 7 (id=5) => har biri uchun 2 ta Oddiy avtomatik
+    // Oila 3 (id=3), Oila 5 (id=4), Oila 7 (id=5) — bu tariflarda ko'pilka
+    // alohida emas, 1-oy bonusiga qo'shib to'lanadi.
     const oilaIds = [3, 4, 5];
-    const ODDIY_PER_OILA = 2;  // har bir Oila SIM uchun avtomatik qo'shiladigan Oddiy soni
-    function oddiyM1() { return tariffs.find(t => t.id === 6)?.m1 || 10000; }
+    const oilami = id => oilaIds.includes(id);
 
-    function getAutoOddiyCount() {
-      let oilaTotal = 0;
-      oilaIds.forEach(id => { oilaTotal += salesData[id] || 0; });
-      return oilaTotal * ODDIY_PER_OILA;
+    // Tarifning 1-oylik summasi (Oila bo'lsa ko'pilka ham shu yerda)
+    function birinchiOy(tariff) {
+      return tariff.m1 + (oilami(tariff.id) ? tariff.k : 0);
+    }
+    // Alohida qatorda ko'rsatiladigan ko'pilka (Oila tariflarida 0)
+    function alohidaKopilka(tariff) {
+      return oilami(tariff.id) ? 0 : tariff.k;
     }
 
     function calculateTotals() {
@@ -397,16 +401,11 @@
       tariffs.forEach(tariff => {
         const count = salesData[tariff.id] || 0;
         totalSims += count;
-        month1  += count * tariff.m1;
+        month1  += count * birinchiOy(tariff);
         month2  += count * tariff.m2;
         month3  += count * tariff.m3;
-        kopilka += count * tariff.k;
+        kopilka += count * alohidaKopilka(tariff);
       });
-      // Avtomatik Oddiy: har bir Oila (Max/Ultra/Mega) SIM uchun 2 ta Oddiy qo'shiladi
-      // Oddiy faqat 1-oyga ta'sir qiladi (m2=0, m3=0, k=0)
-      const autoOddiy = getAutoOddiyCount();
-      totalSims += autoOddiy;
-      month1 += autoOddiy * oddiyM1();
       const total3 = month1 + month2 + month3;
       const grandTotal = total3 + kopilka;
       document.getElementById('totalSimsCount').innerText  = totalSims.toLocaleString() + " dona";
@@ -433,22 +432,15 @@
         const count = salesData[tariff.id] || 0;
         if (count > 0) {
           totalSims += count;
-          month1  += count * tariff.m1;
+          month1  += count * birinchiOy(tariff);
           month2  += count * tariff.m2;
           month3  += count * tariff.m3;
-          kopilka += count * tariff.k;
-          const sub3 = count * (tariff.m1 + tariff.m2 + tariff.m3);
+          kopilka += count * alohidaKopilka(tariff);
+          const sub3 = count * (birinchiOy(tariff) + tariff.m2 + tariff.m3);
           details.push('• ' + tariff.name + ': ' + count + ' dona (3 oy: ' + sub3.toLocaleString() + " so'm)");
         }
       });
       if (totalSims === 0) { showToast("Hisobot uchun sotuv kiritilmagan!"); return; }
-      // Avtomatik Oddiy SIM-lar
-      const autoOddiy = getAutoOddiyCount();
-      if (autoOddiy > 0) {
-        details.push('• Oddiy (avtomatik): ' + autoOddiy + ' dona (1-oy: ' + (autoOddiy * oddiyM1()).toLocaleString() + " so'm)");
-        totalSims += autoOddiy;
-        month1 += autoOddiy * oddiyM1();
-      }
       const total3 = month1 + month2 + month3;
       const grandTotal = total3 + kopilka;
       const text = '📊 *BEELINE DILER SOTUV HISOBOTI*\n\n' + details.join('\n') + '\n\n-------------------------------\n' +
